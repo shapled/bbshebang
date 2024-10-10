@@ -2,13 +2,15 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
-	"os/exec"
 	"runtime"
 	"strings"
 
 	"github.com/spf13/cobra"
+	"mvdan.cc/sh/v3/interp"
+	"mvdan.cc/sh/v3/syntax"
 )
 
 var rootCmd = &cobra.Command{
@@ -52,16 +54,24 @@ func runScript(cmd *cobra.Command, args []string) {
 			}
 		}
 
-		cmd := exec.Command(command)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		r := strings.NewReader(fmt.Sprintf("%s %s", command, filename))
+		f, err := syntax.NewParser().Parse(r, "")
+		if err != nil {
+			fmt.Printf("Error parsing shebang: %v\n", err)
+			return
+		}
 
-		if err := cmd.Start(); err != nil {
+		syntax.NewPrinter().Print(os.Stdout, f)
+
+		runner, err := interp.New(
+			interp.StdIO(nil, os.Stdout, os.Stdout),
+		)
+		if err != nil {
 			fmt.Printf("Error starting command: %v\n", err)
 			return
 		}
 
-		if err := cmd.Wait(); err != nil {
+		if err := runner.Run(context.TODO(), f); err != nil {
 			fmt.Printf("Command finished with error: %v\n", err)
 		}
 	} else {
