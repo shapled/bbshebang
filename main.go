@@ -13,9 +13,19 @@ import (
 	"mvdan.cc/sh/v3/syntax"
 )
 
+const version = "0.1.1"
+
 var rootCmd = &cobra.Command{
 	Use:   "bbshebang",
 	Short: "Manage your shebang line",
+}
+
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print the version number of bbshebang",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("bbshebang version %s\n", version)
+	},
 }
 
 var runCmd = &cobra.Command{
@@ -80,7 +90,7 @@ func runScript(cmd *cobra.Command, args []string) {
 }
 
 func main() {
-	rootCmd.AddCommand(runCmd)
+	rootCmd.AddCommand(runCmd, versionCmd)
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

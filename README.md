@@ -6,5 +6,5 @@ To help Windows users run shebangs, `bbshebang` also supports the `run` command,
 ## installing
 
 ```bash
-go install github.com/shapled/bbshebang@latest
+go install github.com/shapled/bbshebang@v0.1.0
 ```
